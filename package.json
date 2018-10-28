@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "build_win": "electron-builder --win --x64",
-    "build_mac": "electron-builder --mac --x64"
+    "build_win": "electron-builder --win --x64 -p always",
+    "build_mac": "electron-builder --mac --x64 -p always"
   },
   "keywords": [],
   "author": "",
@@ -37,16 +37,7 @@
       "oneClick": false,
       "runAfterFinish": true,
       "allowToChangeInstallationDirectory": false
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "repo": "nodejs20181019",
-        "host": "https://github.com/nodejs20181019/",
-        "protocol": "https",
-        "token": "cd3b060b72c68312177923e32fff14837b5d1d78"
-      }
-    ]
+    }
   },
   "repository": {
     "type": "git",
