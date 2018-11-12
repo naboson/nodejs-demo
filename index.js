@@ -8,6 +8,11 @@ const fs = require('fs');
 const request = require('request');
 var pjson = require('./package.json');
 let win;
+
+const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
+const keyFile = 'resources/v5.pem';
+const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
+
 // creates the default window
 function createDefaultWindow() {
     win = new BrowserWindow({width: 400, height: 300});
@@ -44,7 +49,7 @@ service.use(function (req, res, next) {
 });
  //localhost:3000/getParam?param=Tina
 service.get('/getParam', function (req, res) {
-   res.send('Hello '+req.query.param+'^.^!! This is version'+pjson.version);
+   res.send('Hello ' + req.query.param + '^.^!! This is version '+pjson.version);
 })
  //localhost:3000/uploadFile?filePath=C:\Users\User\Desktop\nodejs測試安裝文件.docx
 service.get('/uploadFile', function (req, res) {
@@ -55,12 +60,12 @@ function uploadFile(req, res){
     //first: get google oauth2 token 
     var TokenCache = require('google-oauth-jwt').TokenCache, tokens = new TokenCache();
     tokens.get({
-    // use the email address of the service account, as seen in the API console
-    email: 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com',
-    // use the PEM file we generated from the downloaded key
-    keyFile: 'resources/v3-nodejs-demo-client.pem',
-    // specify the scopes you wish to access
-    scopes: ['https://www.googleapis.com/auth/drive']
+        // use the email address of the service account, as seen in the API console
+        email: email,
+        // use the PEM file we generated from the downloaded key
+        keyFile: keyFile,
+        // specify the scopes you wish to access
+        scopes: ['https://www.googleapis.com/auth/drive']
     }, function (err, token) {
         var filePath = req.query.filePath;
         if(!err && filePath){
@@ -93,7 +98,7 @@ function uploadToDrive(token, filePath, res){
                  'title': fileName,
                  'parents': [
                    {
-                     'id': '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu'
+                     'id': folderId
                    }
                  ]
                })
