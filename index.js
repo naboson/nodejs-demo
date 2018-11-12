@@ -56,9 +56,9 @@ function uploadFile(req, res){
     var TokenCache = require('google-oauth-jwt').TokenCache, tokens = new TokenCache();
     tokens.get({
     // use the email address of the service account, as seen in the API console
-    email: 'testnodejs20181031@api-project-143094972772.iam.gserviceaccount.com',
+    email: 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com',
     // use the PEM file we generated from the downloaded key
-    keyFile: 'resources/api-project-143094972772-d87f1de3dce5.pem',
+    keyFile: 'resources/v3-nodejs-demo-client.pem',
     // specify the scopes you wish to access
     scopes: ['https://www.googleapis.com/auth/drive']
     }, function (err, token) {
@@ -93,7 +93,7 @@ function uploadToDrive(token, filePath, res){
                  'title': fileName,
                  'parents': [
                    {
-                     'id': '1lTgELuUYFyp3CkquWnw62zN9hvOzqumi'
+                     'id': '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu'
                    }
                  ]
                })
