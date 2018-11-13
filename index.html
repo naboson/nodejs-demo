@@ -55,6 +55,10 @@
             $('#uploadResult').html('上傳檔案成功');
         });
 
+        ipcRenderer.on('debug', function(event, text) {
+            $('#debug').html(text);
+        });
+
         function manualCheck() {
             $('#updateBtn').hide();
             $('#manualCheck').hide();
@@ -101,6 +105,10 @@
                 <button id="uploadFileBtn" class="btn btn-sm btn-primary" onClick="uploadFile()">上傳</button>
                 <span id="uploadResult"></span>
             </div>
+        </div>
+
+        <div id="debug">
+            
         </div>
     </div>
 

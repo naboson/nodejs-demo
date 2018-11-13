@@ -15,7 +15,7 @@ const http = require('http');
 let win;
 
 const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
-const keyFile = (process.platform === 'darwin' ? path.join(__dirname, 'mac.pem') : 'resources/win.pem');
+const keyFile = (process.platform === 'darwin' ? path.join(__dirname, 'resources/win.pem') : 'resources/win.pem');
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
 var webserverStatus = null;
@@ -36,6 +36,8 @@ function createDefaultWindow() {
     win.webContents.on('did-finish-load', () => {
       win.webContents.send('version', pjson.version);
       win.webContents.send('webserverStatus', webserverStatus);
+
+      win.webContents.send('debug', 'keyFile=' + keyFile);
     })
     // When Window Close.
     win.on('closed', () => {
