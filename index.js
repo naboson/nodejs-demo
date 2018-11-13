@@ -19,7 +19,7 @@ const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
 const keyFile = 'resources/v5.pem';
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
-var isCheckingDone = false;
+var r = null;
 
 // creates the default window
 function createDefaultWindow() {
@@ -92,11 +92,12 @@ ipcMain.on("manualCheck", (event, arg) => {
 
 ipcMain.on("openFileDialog", (event, arg) => {
     var options = {
-        'title': '選擇上傳檔案'
+        'title': '選擇上傳檔案',
+        'properties': ['openFile', 'multiSelections' ]
     }
     dialog.showOpenDialog(win, options, function(filePaths, booksmarks) {
         if (filePaths !== undefined ) {
-            // console.log('filepaths=' + filePaths);
+            console.log('filepaths=' + filePaths);
             win.webContents.send('onFileChosen', filePaths[0]);
         }
         
@@ -163,45 +164,45 @@ function uploadFile(req, res){
     });
 }
 
-function uploadToDrive(token, filePath, res){
-     var fileName = filePath.replace(/^.*[\\\/]/, '');
-     var fstatus = fs.statSync(filePath);
-     fs.open(filePath, 'r', function(status, fileDescripter) {
+function uploadToDrive(token, filePath, res) {
+    var fileName = filePath.replace(/^.*[\\\/]/, '');
+    var fstatus = fs.statSync(filePath);
+    fs.open(filePath, 'r', function(status, fileDescripter) {
         var buffer = new Buffer(fstatus.size);
-        fs.read(fileDescripter, buffer, 0, fstatus.size, 0, function(err, num) {        
-        request.post({
-          'url': 'https://www.googleapis.com/upload/drive/v2/files',
-          'qs': {
-            'uploadType': 'multipart'
-          },
-          'headers' : {
-            'Authorization': 'Bearer ' + token
-          },
-          'multipart':  [
-            {
-              'Content-Type': 'application/json; charset=UTF-8',
-              'body': JSON.stringify({
-                 'title': fileName,
-                 'parents': [
-                   {
-                     'id': folderId
-                   }
-                 ]
-               })
-            },
-            {
-              'Content-Type': 'application/octet-stream',
-              'body': buffer
-            }
-          ]
-        }, function(err,httpResponse,body){ 
-            if(!err){
-                res.send("檔案上傳成功!");
-            }
-            else{
-                res.send("上傳檔案失敗! 原因:"+err);
-            }
-        });       
+        fs.read(fileDescripter, buffer, 0, buffer.length, 0, function(err, num) {
+            r = request.post({
+                'url': 'https://www.googleapis.com/upload/drive/v2/files',
+                'qs': {
+                    'uploadType': 'multipart'
+                },
+                'headers' : {
+                'Authorization': 'Bearer ' + token
+                },
+                'multipart':  [
+                    {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                        'body': JSON.stringify({
+                            'title': fileName,
+                            'parents': [
+                                {
+                                    'id': folderId
+                                }
+                            ]
+                        })
+                    },
+                    {
+                        'Content-Type': 'application/octet-stream',
+                        'body': buffer
+                    }
+                ]
+            }, function(err,httpResponse,body){ 
+                if(!err){
+                    res.send("檔案上傳成功!");
+                }
+                else{
+                    res.send("上傳檔案失敗! 原因:"+err);
+                }
+            });       
       });
     })
 }

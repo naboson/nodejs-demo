@@ -47,7 +47,8 @@
         });
 
         ipcRenderer.on('onFileUploaded', function(event, status) {
-            alert('檔案上傳成功!');
+            $('#uploadFilepathTfd').val('');
+            $('#uploadResult').html('上傳檔案成功');
         });
 
         function manualCheck() {
@@ -56,7 +57,13 @@
             ipcRenderer.send('manualCheck');
         }
 
+        function openFileDialog() {
+            $('#uploadResult').html('');
+            ipcRenderer.send('openFileDialog');
+        }
+
         function uploadFile() {
+            $('#uploadResult').html('上傳檔案中，請稍候...');
             const filepath = $('#uploadFilepathTfd').val();
             ipcRenderer.send('uploadFile', filepath);
         }
@@ -81,8 +88,9 @@
         <div id="uploadArea">
             <input type="text" class="form-control" id="uploadFilepathTfd" style="width: 350;" disabled />
             <div>
-                <button id="openFileDialogBtn" class="btn btn-sm" onClick="ipcRenderer.send('openFileDialog')">選擇檔案</button> 
-                <button id="uploadFileBtn" class="btn btn-sm btn-primary" onClick="uploadFile()">上傳</button> 
+                <button id="openFileDialogBtn" class="btn btn-sm" onClick="openFileDialog()">選擇檔案</button> 
+                <button id="uploadFileBtn" class="btn btn-sm btn-primary" onClick="uploadFile()">上傳</button>
+                <span id="uploadResult"></span>
             </div>
         </div>
     </div>
@@ -90,7 +98,6 @@
     <script>
         $('#updateBtn').hide();
         $('#manualCheck').hide();
-        // $('#uploadArea').hide();
     </script>
 </body>
 
