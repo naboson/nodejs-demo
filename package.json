@@ -26,8 +26,7 @@
     "appId": "nodejs20181019",
     "mac": {
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ]
     },
     "win": {
