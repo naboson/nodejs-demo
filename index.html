@@ -2,26 +2,96 @@
 
 <head>
     <title>Electron AutoUpdater</title>
+    <style>
+        div {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
 <body>
     <script>
         const ipcRenderer = require('electron').ipcRenderer;
         // wait for an updateReady message
-        ipcRenderer.on('updateReady', function(event, text) {
+        //ipcRenderer.on('updateReady', function(event, text) {
             // changes the text of the button
-            var container = document.getElementById('ready');
-            container.innerHTML = "new version ready!";
-        })
+            //var container = document.getElementById('ready');
+            //container.innerHTML = "new version ready!";
+        //})
+
         ipcRenderer.on('version', function (event, version) {
+            console.log('[index.html] in version')
              var container = document.getElementById('version');
              container.innerHTML = "v"+version;
         });
-    </script>
-    Version: <span id="version"></span>
-    <!-- the button onClick sends a quitAndInstall message to the electron main process -->
-    <button id="ready" onClick="ipcRenderer.send('quitAndInstall')">no updates ready</button>
 
+        ipcRenderer.on('onUpdateStatusChanged', function(event, status) {
+            const versionHint = $('#versionHint');
+            if (status === 'checking-for-update') {
+                versionHint.html('正在檢查是否有新版本...');
+            } else if (status === 'update-available') {
+                versionHint.html('發現新版本，正在下載中...');
+            } else if (status === 'update-not-available') {
+                versionHint.html('目前已經是最新版本。');
+                $('#manualCheck').show();
+                $('#uploadArea').show();
+            } else if (status === 'update-downloaded') {
+                versionHint.html('新版本程式已下載完成!');
+                $('#updateBtn').show();
+                $('#manualCheck').show();
+            }
+        });
+
+        ipcRenderer.on('onFileChosen', function(event, filename) {
+            $('#uploadFilepathTfd').val(filename);
+        });
+
+        ipcRenderer.on('onFileUploaded', function(event, status) {
+            alert('檔案上傳成功!');
+        });
+
+        function manualCheck() {
+            $('#updateBtn').hide();
+            $('#manualCheck').hide();
+            ipcRenderer.send('manualCheck');
+        }
+
+        function uploadFile() {
+            const filepath = $('#uploadFilepathTfd').val();
+            ipcRenderer.send('uploadFile', filepath);
+        }
+
+    </script>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+
+    <div class="container-fluid">
+        <p>Node Version:<script>document.write(process.versions.node)</script></p>
+        <p>Chrome Version:<script>document.write(process.versions.chrome)</script></p>
+        <p>Electron Version:<script>document.write(process.versions.electron)</script></p>
+        <p>Version: <span id="version"></span></p>
+        <!-- the button onClick sends a quitAndInstall message to the electron main process -->
+        <div>
+            <span id="versionHint"></span>
+            <button id="updateBtn" onClick="ipcRenderer.send('quitAndInstall')">更新</button>
+            <button id="manualCheck" onClick="manualCheck()">檢查更新</button>
+        </div>
+
+        <hr />
+
+        <div id="uploadArea">
+            <input type="text" class="form-control" id="uploadFilepathTfd" style="width: 350;" disabled />
+            <div>
+                <button id="openFileDialogBtn" class="btn btn-sm" onClick="ipcRenderer.send('openFileDialog')">選擇檔案</button> 
+                <button id="uploadFileBtn" class="btn btn-sm btn-primary" onClick="uploadFile()">上傳</button> 
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#updateBtn').hide();
+        $('#manualCheck').hide();
+        // $('#uploadArea').hide();
+    </script>
 </body>
 
 </html>

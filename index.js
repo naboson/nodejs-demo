@@ -2,45 +2,125 @@
 const express = require('express');
 var service = express();
 
-const {app, BrowserWindow, Menu, protocol, ipcMain} = require('electron');
+const {app, BrowserWindow, Menu, protocol, ipcMain, dialog} = require('electron');
+// const {dialog} = require('electron').remote;
 const {autoUpdater} = require("electron-updater");
 const fs = require('fs');
 const request = require('request');
 var pjson = require('./package.json');
+const path = require('path');
+const url = require('url');
+const jq = require('jquery');
+const http = require('http');
+
 let win;
 
 const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
 const keyFile = 'resources/v5.pem';
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
+var isCheckingDone = false;
+
 // creates the default window
 function createDefaultWindow() {
-    win = new BrowserWindow({width: 400, height: 300});
-    win.loadURL(`file://${__dirname}/index.html`);
+    win = new BrowserWindow({width: 400, height: 400, maximizable: false});
+    win.setMenu(null)
+
+    const pathname = path.join(__dirname, 'index.html')
+    console.log('pathname=' + pathname)
+    win.loadURL(url.format({
+        pathname: pathname,
+        protocol: 'file:',
+        slashes: true
+    }));
+    
     win.webContents.on('did-finish-load', () => {
       win.webContents.send('version', pjson.version);
     })
-    win.on('closed', () => app.quit());
+    // When Window Close.
+    win.on('closed', () => {
+        win = null
+    });
     return win;
 }
 
 // when the app is loaded create a BrowserWindow and check for updates
 app.on('ready', function() {
-    if(process.argv[2] != 'dev'){
+    if(process.argv[2] != 'dev') {
         createDefaultWindow();
         autoUpdater.checkForUpdates();
     }
 });
 
+
+
+
+
+autoUpdater.on('checking-for-update', (info) => {
+    win.webContents.send('onUpdateStatusChanged', 'checking-for-update');
+});
+
+autoUpdater.on('update-available', (info) => {
+    win.webContents.send('onUpdateStatusChanged', 'update-available');
+});
+
+autoUpdater.on('update-not-available', (info) => {
+    win.webContents.send('onUpdateStatusChanged', 'update-not-available');
+});
+
 // when the update has been downloaded and is ready to be installed, notify the BrowserWindow
 autoUpdater.on('update-downloaded', (info) => {
-    win.webContents.send('updateReady')
+    // win.webContents.send('updateReady')
+    win.webContents.send('onUpdateStatusChanged', 'update-downloaded');
 });
+
+
+
+
+
+
+
 
 // when receiving a quitAndInstall signal, quit and install the new version ;)
 ipcMain.on("quitAndInstall", (event, arg) => {
     autoUpdater.quitAndInstall();
 })
+
+ipcMain.on("manualCheck", (event, arg) => {
+    autoUpdater.checkForUpdates();
+})
+
+ipcMain.on("openFileDialog", (event, arg) => {
+    var options = {
+        'title': '選擇上傳檔案'
+    }
+    dialog.showOpenDialog(win, options, function(filePaths, booksmarks) {
+        if (filePaths !== undefined ) {
+            // console.log('filepaths=' + filePaths);
+            win.webContents.send('onFileChosen', filePaths[0]);
+        }
+        
+        //console.log('booksmarks=' + booksmarks);
+    });
+})
+
+ipcMain.on("uploadFile", (event, filename) => {
+    if (filename === undefined || filename === '') {
+        console.log('沒有選擇檔案。');
+        return;
+    }
+    
+    const url = encodeURI('http://localhost:3000/uploadFile?filePath=' + filename);
+    http.get(url, (resp) => {
+        // onFileUploaded
+        win.webContents.send('onFileUploaded');
+    }).on("error", (err) => {
+        console.log("Error: " + err.message);
+    });
+
+})
+
+
 
 service.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -55,6 +135,12 @@ service.get('/getParam', function (req, res) {
 service.get('/uploadFile', function (req, res) {
     uploadFile(req, res);
 })
+
+
+
+
+
+
 
 function uploadFile(req, res){
     //first: get google oauth2 token 
@@ -121,6 +207,7 @@ function uploadToDrive(token, filePath, res){
 }
 
 //設定服務監聽localhost:3000(127.0.0.1/:3000)
+
 service.listen('3000', function () {  
   console.log('server start on 3000 port')
 })
