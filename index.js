@@ -15,10 +15,9 @@ const http = require('http');
 let win;
 
 const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
-const keyFile = 'resources/v5.pem';
+const keyFile = 'v5.pem';
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
-var r = null;
 var webserverStatus = null;
 
 // creates the default window
@@ -101,8 +100,6 @@ ipcMain.on("openFileDialog", (event, arg) => {
             console.log('filepaths=' + filePaths);
             win.webContents.send('onFileChosen', filePaths[0]);
         }
-        
-        //console.log('booksmarks=' + booksmarks);
     });
 })
 
@@ -171,7 +168,7 @@ function uploadToDrive(token, filePath, res) {
     fs.open(filePath, 'r', function(status, fileDescripter) {
         var buffer = new Buffer(fstatus.size);
         fs.read(fileDescripter, buffer, 0, buffer.length, null, function(err, num) {
-            r = request.post({
+            request.post({
                 'url': 'https://www.googleapis.com/upload/drive/v2/files',
                 'qs': {
                     'uploadType': 'multipart'
