@@ -170,7 +170,7 @@ function uploadToDrive(token, filePath, res) {
     var fstatus = fs.statSync(filePath);
     fs.open(filePath, 'r', function(status, fileDescripter) {
         var buffer = new Buffer(fstatus.size);
-        fs.read(fileDescripter, buffer, 0, buffer.length, 0, function(err, num) {
+        fs.read(fileDescripter, buffer, 0, buffer.length, null, function(err, num) {
             r = request.post({
                 'url': 'https://www.googleapis.com/upload/drive/v2/files',
                 'qs': {
