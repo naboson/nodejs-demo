@@ -3,7 +3,6 @@ const express = require('express');
 var service = express();
 
 const {app, BrowserWindow, Menu, protocol, ipcMain, dialog} = require('electron');
-// const {dialog} = require('electron').remote;
 const {autoUpdater} = require("electron-updater");
 const fs = require('fs');
 const request = require('request');
@@ -20,6 +19,7 @@ const keyFile = 'resources/v5.pem';
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
 var r = null;
+var webserverStatus = null;
 
 // creates the default window
 function createDefaultWindow() {
@@ -36,6 +36,7 @@ function createDefaultWindow() {
     
     win.webContents.on('did-finish-load', () => {
       win.webContents.send('version', pjson.version);
+      win.webContents.send('webserverStatus', webserverStatus);
     })
     // When Window Close.
     win.on('closed', () => {
@@ -210,5 +211,6 @@ function uploadToDrive(token, filePath, res) {
 //設定服務監聽localhost:3000(127.0.0.1/:3000)
 
 service.listen('3000', function () {  
-  console.log('server start on 3000 port')
+    console.log('server start on 3000 port');
+    webserverStatus = '已啟動';
 })

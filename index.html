@@ -25,6 +25,10 @@
              container.innerHTML = "v"+version;
         });
 
+        ipcRenderer.on('webserverStatus', function(event, status) {
+            $('#webserverStatus').html(status);
+        });
+
         ipcRenderer.on('onUpdateStatusChanged', function(event, status) {
             const versionHint = $('#versionHint');
             if (status === 'checking-for-update') {
@@ -34,7 +38,7 @@
             } else if (status === 'update-not-available') {
                 versionHint.html('目前已經是最新版本。');
                 $('#manualCheck').show();
-                $('#uploadArea').show();
+                // $('#uploadArea').show();
             } else if (status === 'update-downloaded') {
                 versionHint.html('新版本程式已下載完成!');
                 $('#updateBtn').show();
@@ -72,12 +76,16 @@
     <script>window.$ = window.jQuery = require('jquery');</script>
 
     <div class="container-fluid">
-        <p>Node Version:<script>document.write(process.versions.node)</script></p>
-        <p>Chrome Version:<script>document.write(process.versions.chrome)</script></p>
-        <p>Electron Version:<script>document.write(process.versions.electron)</script></p>
-        <p>Version: <span id="version"></span></p>
-        <!-- the button onClick sends a quitAndInstall message to the electron main process -->
         <div>
+            <p>1. Web Server</p>
+            <span>目前 Web Server 狀態：<span id="webserverStatus"></span></span>
+        </div>
+
+        <hr />
+
+        <div>
+            <p>2. 版本偵測與自動更新</p>
+            <p>目前版本: <span id="version"></span></p>
             <span id="versionHint"></span>
             <button id="updateBtn" onClick="ipcRenderer.send('quitAndInstall')">更新</button>
             <button id="manualCheck" onClick="manualCheck()">檢查更新</button>
@@ -85,7 +93,8 @@
 
         <hr />
 
-        <div id="uploadArea">
+        <div>
+            <p>3. 檔案上傳</p>
             <input type="text" class="form-control" id="uploadFilepathTfd" style="width: 350;" disabled />
             <div>
                 <button id="openFileDialogBtn" class="btn btn-sm" onClick="openFileDialog()">選擇檔案</button> 
