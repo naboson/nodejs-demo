@@ -15,7 +15,7 @@ const http = require('http');
 let win;
 
 const email = 'nodejs-demo-client@nodejs-demo-222303.iam.gserviceaccount.com';
-const keyFile = 'v5.pem';
+const keyFile = path.join(__dirname, 'v5.pem');
 const folderId = '1pJBtkmBCX7kteCHIizTcoGyfmpwwz4tu';
 
 var webserverStatus = null;
